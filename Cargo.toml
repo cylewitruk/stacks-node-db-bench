@@ -1,0 +1,28 @@
+[package]
+name = "stacks-node-db-bench"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+color-eyre = "0.6.2"
+coredump = "0.1.2"
+diesel = { version = "2.1.4", features = ["sqlite", "returning_clauses_for_sqlite_3_35"] }
+diesel_migrations = { version = "2.1.0", features = ["sqlite"] }
+filepath = "0.1.2"
+hex = "0.4.3"
+rand = "0.8.5"
+ring = "0.17.7"
+tempfile = "3.9.0"
+
+[dev-dependencies]
+criterion = "0.5.1"
+
+[[bench]]
+name = "benchmark"
+harness = false
+
+[[bench]]
+name = "general"
+harness = false

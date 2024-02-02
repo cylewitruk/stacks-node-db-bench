@@ -1,0 +1,29 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "./Cargo.toml",
+        "./Cargo.toml",
+        "./Cargo.toml",
+        "./Cargo.toml",
+        "./Cargo.toml",
+        "./Cargo.toml",
+        "./Cargo.toml",
+        "./Cargo.toml",
+        "./Cargo.toml",
+        "./Cargo.toml"
+    ],
+    "folder-color.pathColors": [
+        {
+            "folderPath": "stacks-node-db-bench/src/db_next/",
+            "badge": "💚"
+        },
+        {
+            "folderPath": "stacks-node-db-bench/src/"
+        },
+        {
+            "folderPath": "stacks-node-db-bench/src/db_next/chainstate/"
+        },
+        {
+            "folderPath": "stacks-node-db-bench/src/db_next/mod.rs/"
+        }
+    ]
+}
