@@ -1,7 +1,7 @@
 use diesel::prelude::*;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations};
 
-use self::schema::block_hash_as_binary;
+use self::schema::{block_hash_as_binary_1, block_hash_as_text_1};
 
 pub mod schema;
 
@@ -12,13 +12,17 @@ pub const DB_MIGRATIONS: EmbeddedMigrations = embed_migrations!("src/db_general/
 #[derive(
     Queryable, Selectable, Identifiable, PartialEq, Eq, Debug, Clone, QueryableByName, Insertable,
 )]
-#[diesel(table_name = block_hash_as_binary)]
-pub struct BlockHashAsBinary {
+#[diesel(table_name = block_hash_as_binary_1)]
+pub struct BlockHashAsBinary1 {
     pub id: i32,
     pub block_hash: Vec<u8>,
 }
 
-pub struct BlockHashAsHex {
+#[derive(
+    Queryable, Selectable, Identifiable, PartialEq, Eq, Debug, Clone, QueryableByName, Insertable,
+)]
+#[diesel(table_name = block_hash_as_text_1)]
+pub struct BlockHashAsHex1 {
     pub id: i32,
     pub block_hash: String,
 }

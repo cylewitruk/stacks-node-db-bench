@@ -3,16 +3,18 @@
 ## Table of Contents
 
 - [Benchmark Results](#benchmark-results)
-    - [general](#general)
+    - [block hash](#block-hash)
 
 ## Benchmark Results
 
-### general
+### block hash
 
-|              | `block_hash_as_hex`          | `block_hash_as_binary`           |
-|:-------------|:-----------------------------|:-------------------------------- |
-| **`insert`** | `40.08 us` (✅ **1.00x**)     | `21.07 us` (🚀 **1.90x faster**)  |
-| **`select`** | `2.07 us` (✅ **1.00x**)      | `1.68 us` (✅ **1.23x faster**)   |
+|                         | `as hex`                 | `as binary`                      |
+|:------------------------|:-------------------------|:-------------------------------- |
+| **`insert 1 column`**   | `53.08 us` (✅ **1.00x**) | `31.88 us` (✅ **1.66x faster**)  |
+| **`insert 10 columns`** | `54.60 us` (✅ **1.00x**) | `40.01 us` (✅ **1.36x faster**)  |
+| **`select 1 column`**   | `1.80 us` (✅ **1.00x**)  | `1.78 us` (✅ **1.01x faster**)   |
+| **`select 10 columns`** | `8.37 us` (✅ **1.00x**)  | `7.54 us` (✅ **1.11x faster**)   |
 
 ---
 Made with [criterion-table](https://github.com/nu11ptr/criterion-table)
