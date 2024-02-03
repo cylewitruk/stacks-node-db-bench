@@ -1,8 +1,3 @@
---CREATE TABLE metadata_store_type (
---    id INTEGER PRIMARY KEY,
---    name TEXT NOT NULL
---);
-
 --INSERT INTO metadata_store_type (id, name) VALUES (0, 'Data Map');
 --INSERT INTO metadata_store_type (id, name) VALUES (1, 'Variable');
 --INSERT INTO metadata_store_type (id, name) VALUES (2, 'Fungible Token');
@@ -27,11 +22,10 @@ CREATE TABLE contract (
     source_code BINARY NOT NULL,
     data_size INTEGER NOT NULL,
     contract_size INTEGER NOT NULL,
-    ast BINARY NOT NULL
+    ast BINARY NOT NULL,
 
-    PRIMARY KEY (contract_issuer, contract_name, block_hash),
-    WITHOUT ROWID,
-);
+    PRIMARY KEY (contract_issuer, contract_name, block_hash)
+) WITHOUT ROWID;
 
 CREATE TABLE data_map (
     contract_issuer TEXT NOT NULL,
@@ -40,20 +34,18 @@ CREATE TABLE data_map (
     name TEXT NOT NULL,
     metadata BINARY NOT NULL,
 
-    PRIMARY KEY (contract_issuer, contract_name, block_hash),
-    WITHOUT ROWID,
-);
+    PRIMARY KEY (contract_issuer, contract_name, block_hash)
+) WITHOUT ROWID;
 
-/*
-clr-meta::SPZ0RAC1EFTH949T4W2SYY6YBHJRMAF4ECT5A7DD.oracle-v1::vm-metadata::6::offsets-amount
 
-The above would be stored in the `variable` tabl as follows:
-  contract_issuer: SPZ0RAC1EFTH949T4W2SYY6YBHJRMAF4ECT5A7DD
-  contract_name: oracle-v1
-  block_hash: [from the `blockhash` column in `metadata_table`]
-  name: offsets-amount
-  metadata: [from the `value` column in `metadata_table`]
-*/
+--clr-meta::SPZ0RAC1EFTH949T4W2SYY6YBHJRMAF4ECT5A7DD.oracle-v1::vm-metadata::6::offsets-amount
+--
+--The above would be stored in the `variable` tabl as follows:
+--  contract_issuer: SPZ0RAC1EFTH949T4W2SYY6YBHJRMAF4ECT5A7DD
+--  contract_name: oracle-v1
+--  block_hash: [from the `blockhash` column in `metadata_table`]
+--  name: offsets-amount
+--  metadata: [from the `value` column in `metadata_table`]
 CREATE TABLE variable (
     contract_issuer TEXT NOT NULL,
     contract_name TEXT NOT NULL,
@@ -61,9 +53,8 @@ CREATE TABLE variable (
     name TEXT NOT NULL,
     metadata BINARY NOT NULL,
 
-    PRIMARY KEY (contract_issuer, contract_name, block_hash),
-    WITHOUT ROWID
-);
+    PRIMARY KEY (contract_issuer, contract_name, block_hash)
+) WITHOUT ROWID;
 
 CREATE TABLE fungible_token (
     contract_issuer TEXT NOT NULL,
@@ -72,9 +63,8 @@ CREATE TABLE fungible_token (
     name TEXT NOT NULL,
     metadata,
 
-    PRIMARY KEY (contract_issuer, contract_name, block_hash),
-    WITHOUT ROWID
-);
+    PRIMARY KEY (contract_issuer, contract_name, block_hash)
+) WITHOUT ROWID;
 
 CREATE TABLE non_fungible_token (
     contract_issuer TEXT NOT NULL,
@@ -83,6 +73,5 @@ CREATE TABLE non_fungible_token (
     name TEXT NOT NULL,
     metadata,
 
-    PRIMARY KEY (contract_issuer, contract_name, block_hash),
-    WITHOUT ROWID
-);
+    PRIMARY KEY (contract_issuer, contract_name, block_hash)
+) WITHOUT ROWID;

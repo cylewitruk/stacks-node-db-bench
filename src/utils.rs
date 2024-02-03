@@ -27,6 +27,10 @@ pub fn random_string(n: usize) -> String {
         .collect()
 }
 
+pub fn random_bytes(n: usize) -> Vec<u8> {
+    thread_rng().sample_iter(&Alphanumeric).take(n).collect()
+}
+
 pub fn tmp_file() -> NamedTempFile {
     tempfile::Builder::new().prefix("db-bench").suffix(".sqlite").tempfile().unwrap()
 }

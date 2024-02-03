@@ -9,9 +9,9 @@ pub mod schema;
 // run at applicaton execution without needing external SQL files.
 pub const DB_MIGRATIONS: EmbeddedMigrations = embed_migrations!("src/db_current/clarity/migrations");
 
-pub const CONTRACT_ANALYSIS: &str = include_str!("data/contract_analysis.json");
-pub const CONTRACT_AST: &str = include_str!("data/contract_ast.json");
-pub const CONTRACT_SOURCE: &str = include_str!("data/contract_src.clar");
+pub const CONTRACT_ANALYSIS: &str = include_str!("../../../data/clarity/contract_analysis.json");
+pub const CONTRACT_AST: &str = include_str!("../../../data/clarity/contract_ast.json");
+pub const CONTRACT_SOURCE: &str = include_str!("../../../data/clarity/contract_src.clar");
 
 #[derive(Queryable, Selectable, Identifiable, PartialEq, Eq, Debug, Clone, QueryableByName)]
 #[diesel(primary_key(key, blockhash))]
