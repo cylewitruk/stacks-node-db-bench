@@ -1,4 +1,7 @@
+use diesel::prelude::*;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations};
+
+use self::schema::contract;
 
 pub mod schema;
 
@@ -10,6 +13,9 @@ pub const CONTRACT_ANALYSIS: &str = include_str!("../../../data/clarity/contract
 pub const CONTRACT_AST: &str = include_str!("../../../data/clarity/contract_ast.json");
 pub const CONTRACT_SOURCE: &str = include_str!("../../../data/clarity/contract_src.clar");
 
+#[derive(Queryable, Selectable, Identifiable, PartialEq, Eq, Debug, Clone, QueryableByName)]
+#[diesel(primary_key(contract_issuer, contract_name, block_hash))]
+#[diesel(table_name = contract)]
 pub struct Contract {
     pub contract_issuer: String,
     pub contract_name: String,
@@ -18,4 +24,5 @@ pub struct Contract {
     pub data_size: i32,
     pub contract_size: i32,
     pub ast: Vec<u8>,
+    pub ast_size: i32
 }

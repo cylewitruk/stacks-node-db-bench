@@ -9,5 +9,6 @@ table! {
         data_size -> Integer,
         contract_size -> Integer,
         ast -> Binary,
+        ast_size -> Integer,
     }
 }

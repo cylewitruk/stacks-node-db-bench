@@ -23,6 +23,7 @@ CREATE TABLE contract (
     data_size INTEGER NOT NULL,
     contract_size INTEGER NOT NULL,
     ast BINARY NOT NULL,
+    ast_size INTEGER NOT NULL,
 
     PRIMARY KEY (contract_issuer, contract_name, block_hash)
 ) WITHOUT ROWID;

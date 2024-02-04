@@ -3,15 +3,16 @@
 ## Table of Contents
 
 - [Benchmark Results](#benchmark-results)
-    - [contracts](#contracts)
+    - [serialization](#serialization)
 
 ## Benchmark Results
 
-### contracts
+### serialization
 
-|              | `current`                 | `next`                            |
-|:-------------|:--------------------------|:--------------------------------- |
-| **`insert`** | `513.72 us` (✅ **1.00x**) | `274.05 us` (🚀 **1.87x faster**)  |
+|                | `json`                    | `msgpack`                         |
+|:---------------|:--------------------------|:--------------------------------- |
+| **`ast`**      | `254.94 us` (✅ **1.00x**) | `166.26 us` (✅ **1.53x faster**)  |
+| **`analysis`** | `53.31 us` (✅ **1.00x**)  | `32.98 us` (✅ **1.62x faster**)   |
 
 ---
 Made with [criterion-table](https://github.com/nu11ptr/criterion-table)

@@ -36,3 +36,7 @@ harness = false
 [[bench]]
 name = "clarity"
 harness = false
+
+[[bench]]
+name = "serialization"
+harness = false

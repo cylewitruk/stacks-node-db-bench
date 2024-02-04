@@ -4,6 +4,7 @@ use rand::{distributions::Alphanumeric, thread_rng, Rng};
 use tempfile::NamedTempFile;
 
 /// Applies the provided db migrations to the provided db.
+#[inline]
 pub fn apply_migrations(db: &mut SqliteConnection, migrations: EmbeddedMigrations) {
 
     db.batch_execute("
@@ -19,6 +20,7 @@ pub fn apply_migrations(db: &mut SqliteConnection, migrations: EmbeddedMigration
 }
 
 /// Generates a random string of length n.
+#[inline]
 pub fn random_string(n: usize) -> String {
     thread_rng()
         .sample_iter(&Alphanumeric)
@@ -27,14 +29,17 @@ pub fn random_string(n: usize) -> String {
         .collect()
 }
 
+#[inline]
 pub fn random_bytes(n: usize) -> Vec<u8> {
     thread_rng().sample_iter(&Alphanumeric).take(n).collect()
 }
 
+#[inline]
 pub fn tmp_file() -> NamedTempFile {
     tempfile::Builder::new().prefix("db-bench").suffix(".sqlite").tempfile().unwrap()
 }
 
+#[inline]
 pub fn new_sqlite_db(db_file: &NamedTempFile) -> SqliteConnection {
     SqliteConnection::establish(&db_file.path().to_str().unwrap()).unwrap()
 }
