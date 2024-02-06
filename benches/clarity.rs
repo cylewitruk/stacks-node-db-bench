@@ -34,7 +34,7 @@ fn main() {
         .final_summary();
 }
 
-fn insert_clarity_contract_current(c: &mut Criterion) {
+pub fn insert_clarity_contract_current(c: &mut Criterion) {
     use stacks_node_db_bench::db_current::clarity::{
         DB_MIGRATIONS, CONTRACT_AST, CONTRACT_SOURCE,
         schema::metadata_table
@@ -93,7 +93,7 @@ fn insert_clarity_contract_current(c: &mut Criterion) {
     });
 }
 
-fn insert_clarity_contract_next(c: &mut Criterion) {
+pub fn insert_clarity_contract_next(c: &mut Criterion) {
     use stacks_node_db_bench::db_next::clarity::{
         DB_MIGRATIONS, CONTRACT_AST, CONTRACT_SOURCE,
         schema::contract
@@ -142,7 +142,7 @@ fn insert_clarity_contract_next(c: &mut Criterion) {
     });
 }
 
-fn select_clarity_contract_current(c: &mut Criterion) {
+pub fn select_clarity_contract_current(c: &mut Criterion) {
     use stacks_node_db_bench::db_current::clarity::{
         DB_MIGRATIONS, CONTRACT_AST, CONTRACT_SOURCE,
         schema::metadata_table
@@ -289,7 +289,7 @@ fn select_clarity_contract_current(c: &mut Criterion) {
     });
 }
 
-fn select_clarity_contract_next(c: &mut Criterion) {
+pub fn select_clarity_contract_next(c: &mut Criterion) {
     use stacks_node_db_bench::db_next::clarity::{
         DB_MIGRATIONS, CONTRACT_AST, CONTRACT_SOURCE,
         schema::contract

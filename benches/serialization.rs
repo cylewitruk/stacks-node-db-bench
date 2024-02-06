@@ -30,7 +30,7 @@ fn main() {
         .final_summary();
 }
 
-fn serialize_ast_json(c: &mut Criterion) {
+pub fn serialize_ast_json(c: &mut Criterion) {
     use stacks_node_db_bench::db_current::clarity::CONTRACT_AST;
     let ast = Contract::deserialize(CONTRACT_AST).unwrap();
 
@@ -42,7 +42,7 @@ fn serialize_ast_json(c: &mut Criterion) {
     });
 }
 
-fn serialize_ast_msgpack(c: &mut Criterion) {
+pub fn serialize_ast_msgpack(c: &mut Criterion) {
     use stacks_node_db_bench::db_current::clarity::CONTRACT_AST;
     let ast = Contract::deserialize(CONTRACT_AST).unwrap();
 
@@ -54,7 +54,7 @@ fn serialize_ast_msgpack(c: &mut Criterion) {
     });
 }
 
-fn serialize_analysis_json(c: &mut Criterion) {
+pub fn serialize_analysis_json(c: &mut Criterion) {
     use stacks_node_db_bench::db_current::clarity::CONTRACT_ANALYSIS;
     let analysis = ContractAnalysis::deserialize(CONTRACT_ANALYSIS).unwrap();
 
@@ -66,7 +66,7 @@ fn serialize_analysis_json(c: &mut Criterion) {
     });
 }
 
-fn serialize_analysis_msgpack(c: &mut Criterion) {
+pub fn serialize_analysis_msgpack(c: &mut Criterion) {
     use stacks_node_db_bench::db_current::clarity::CONTRACT_ANALYSIS;
     let analysis = ContractAnalysis::deserialize(CONTRACT_ANALYSIS).unwrap();
 

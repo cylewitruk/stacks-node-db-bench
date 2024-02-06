@@ -37,7 +37,7 @@ fn main() {
         .final_summary();
 }
 
-fn insert_block_hash_as_hex_1(c: &mut Criterion) {
+pub fn insert_block_hash_as_hex_1(c: &mut Criterion) {
     use stacks_node_db_bench::db_general::{DB_MIGRATIONS, schema::block_hash_as_text_1};
     
     let tmp = tmp_file();
@@ -67,7 +67,7 @@ fn insert_block_hash_as_hex_1(c: &mut Criterion) {
     });
 }
 
-fn insert_block_hash_as_binary_1(c: &mut Criterion) {
+pub fn insert_block_hash_as_binary_1(c: &mut Criterion) {
     use stacks_node_db_bench::db_general::{DB_MIGRATIONS, schema::block_hash_as_binary_1};
 
     let tmp = tmp_file();
@@ -96,7 +96,7 @@ fn insert_block_hash_as_binary_1(c: &mut Criterion) {
     });
 }
 
-fn insert_block_hash_as_hex_10(c: &mut Criterion) {
+pub fn insert_block_hash_as_hex_10(c: &mut Criterion) {
     use stacks_node_db_bench::db_general::{DB_MIGRATIONS, schema::block_hash_as_text_10};
     
     let tmp = tmp_file();
@@ -138,7 +138,7 @@ fn insert_block_hash_as_hex_10(c: &mut Criterion) {
     });
 }
 
-fn insert_block_hash_as_binary_10(c: &mut Criterion) {
+pub fn insert_block_hash_as_binary_10(c: &mut Criterion) {
     use stacks_node_db_bench::db_general::{DB_MIGRATIONS, schema::block_hash_as_binary_10};
 
     let tmp = tmp_file();
@@ -180,7 +180,7 @@ fn insert_block_hash_as_binary_10(c: &mut Criterion) {
     });
 }
 
-fn select_block_hash_as_hex_1(c: &mut Criterion) {
+pub fn select_block_hash_as_hex_1(c: &mut Criterion) {
     use stacks_node_db_bench::db_general::{DB_MIGRATIONS, schema::block_hash_as_text_1};
     
     let tmp = tmp_file();
@@ -218,7 +218,7 @@ fn select_block_hash_as_hex_1(c: &mut Criterion) {
     });
 }
 
-fn select_block_hash_as_binary_1(c: &mut Criterion) {
+pub fn select_block_hash_as_binary_1(c: &mut Criterion) {
     use stacks_node_db_bench::db_general::{DB_MIGRATIONS, schema::block_hash_as_binary_1};
     
     let tmp = tmp_file();
@@ -256,7 +256,7 @@ fn select_block_hash_as_binary_1(c: &mut Criterion) {
     });
 }
 
-fn select_block_hash_as_hex_10(c: &mut Criterion) {
+pub fn select_block_hash_as_hex_10(c: &mut Criterion) {
     use stacks_node_db_bench::db_general::{DB_MIGRATIONS, schema::block_hash_as_text_10};
     
     let tmp = tmp_file();
@@ -324,7 +324,7 @@ fn select_block_hash_as_hex_10(c: &mut Criterion) {
     });
 }
 
-fn select_block_hash_as_binary_10(c: &mut Criterion) {
+pub fn select_block_hash_as_binary_10(c: &mut Criterion) {
     use stacks_node_db_bench::db_general::{DB_MIGRATIONS, schema::block_hash_as_binary_10};
     
     let tmp = tmp_file();

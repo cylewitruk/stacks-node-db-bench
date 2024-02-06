@@ -26,10 +26,6 @@ criterion = "0.5.1"
 coredump = "0.1.2"
 
 [[bench]]
-name = "benchmark"
-harness = false
-
-[[bench]]
 name = "general"
 harness = false
 
@@ -39,4 +35,8 @@ harness = false
 
 [[bench]]
 name = "serialization"
+harness = false
+
+[[bench]]
+name = "all"
 harness = false
