@@ -10,7 +10,6 @@ color-eyre = "0.6.2"
 diesel = { version = "2.1.4", features = ["sqlite", "returning_clauses_for_sqlite_3_35"] }
 diesel_migrations = { version = "2.1.0", features = ["sqlite"] }
 hex = "0.4.3"
-lzzzz = "1.0.4"
 rand = "0.8.5"
 ring = "0.17.7"
 rmp = "0.8.12"
@@ -20,6 +19,9 @@ serde_json = "1.0.113"
 tempfile = "3.9.0"
 stackslib = { path = "./stacks-core/stackslib" }
 stacks-common = { path = "./stacks-core/stacks-common" }
+ciborium = "0.2.2"
+lz4_flex = "0.11.2"
+speedy = "0.8.7"
 
 [dev-dependencies]
 criterion = "0.5.1"

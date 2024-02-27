@@ -1,26 +1,28 @@
 use std::time::Duration;
 
-use blockstack_lib::clarity::vm::{contracts::Contract, database::ClaritySerializable, database::ClarityDeserializable};
+use blockstack_lib::clarity::vm::{analysis::ContractAnalysis, contracts::Contract, database::{ClarityDeserializable, ClaritySerializable}};
 use diesel::{insert_into, BoolExpressionMethods, ExpressionMethods, QueryDsl, RunQueryDsl};
 use criterion::{criterion_group, Criterion};
 use rand::{thread_rng, Rng};
-use stacks_node_db_bench::utils::{apply_migrations, new_sqlite_db, random_bytes, random_string, tmp_file};
-use lzzzz::lz4;
+use speedy::Readable;
+use stacks_node_db_bench::utils::{
+    apply_migrations, new_sqlite_db, random_bytes, random_string, tmp_file
+};
 
 criterion_group! {
     name = insert_clarity_contract;
     config = Criterion::default().sample_size(2000).measurement_time(Duration::from_secs(10));
     targets =
-        insert_clarity_contract_current,
-        insert_clarity_contract_next
+        insert_clarity_contract_next,
+        insert_clarity_contract_optimized
 }
 
 criterion_group! {
     name = select_clarity_contract;
     config = Criterion::default().sample_size(2000).measurement_time(Duration::from_secs(10));
     targets =
-        select_clarity_contract_current,
-        select_clarity_contract_next
+        select_clarity_contract_next,
+        select_clarity_contract_optimized
 }
 
 fn main() {
@@ -34,23 +36,25 @@ fn main() {
         .final_summary();
 }
 
-pub fn insert_clarity_contract_current(c: &mut Criterion) {
+pub fn insert_clarity_contract_next(c: &mut Criterion) {
     use stacks_node_db_bench::db_current::clarity::{
-        DB_MIGRATIONS, CONTRACT_AST, CONTRACT_SOURCE,
+        DB_MIGRATIONS, CONTRACT_AST, CONTRACT_SOURCE, CONTRACT_ANALYSIS,
         schema::metadata_table
     };
 
     let ast = Contract::deserialize(CONTRACT_AST).unwrap();
+    let analysis = ContractAnalysis::deserialize(CONTRACT_ANALYSIS).unwrap();
     
     let tmp = tmp_file();
     let mut db = new_sqlite_db(&tmp);
 
     apply_migrations(&mut db, DB_MIGRATIONS);
 
-    c.bench_function("contracts/current/insert", |b| {
+    c.bench_function("contracts/next/insert", |b| {
         b.iter(|| {
 
             let serialized_ast = ast.serialize();
+            let serialized_analysis = analysis.serialize();
 
             insert_into(metadata_table::table)
                 .values((
@@ -89,41 +93,45 @@ pub fn insert_clarity_contract_current(c: &mut Criterion) {
                 ))
                 .execute(&mut db)
                 .unwrap();
+
+            // Simulate `analysis`
+            insert_into(metadata_table::table)
+                .values((
+                    metadata_table::key.eq(random_string(64)),
+                    metadata_table::blockhash.eq(random_string(64)),
+                    metadata_table::value.eq(serialized_analysis),
+                ))
+                .execute(&mut db)
+                .unwrap();
         });
     });
 }
 
-pub fn insert_clarity_contract_next(c: &mut Criterion) {
+pub fn insert_clarity_contract_optimized(c: &mut Criterion) {
     use stacks_node_db_bench::db_next::clarity::{
-        DB_MIGRATIONS, CONTRACT_AST, CONTRACT_SOURCE,
-        schema::contract
+        DB_MIGRATIONS, CONTRACT_AST, CONTRACT_SOURCE, CONTRACT_ANALYSIS,
+        schema::contract, schema::contract_analysis
     };
 
-    //let analysis = ContractAnalysis::deserialize(CONTRACT_ANALYSIS).unwrap();
+    let analysis = ContractAnalysis::deserialize(CONTRACT_ANALYSIS).unwrap();
     let ast = Contract::deserialize(CONTRACT_AST).unwrap();
     
     let tmp = tmp_file();
     let mut db = new_sqlite_db(&tmp);
 
     apply_migrations(&mut db, DB_MIGRATIONS);
+    let mut analysis_id = 0;
 
-    c.bench_function("contracts/next/insert", |b| {
+    c.bench_function("contracts/optimized/insert", |b| {
         b.iter(|| {
-            let serialized_ast = rmp_serde::to_vec(&ast).unwrap();
+            let serialized_ast = speedy::Writable::write_to_vec(&ast)
+                .expect("failed to serialize contract AST");
+            let serialized_analysis = speedy::Writable::write_to_vec(&analysis)
+                .expect("failed to serialize contract analysis");
 
-            let mut compressed_src = Vec::<u8>::with_capacity(10000);
-            lzzzz::lz4::compress_to_vec(
-                CONTRACT_SOURCE.as_bytes(), 
-                &mut compressed_src, 
-                lz4::ACC_LEVEL_DEFAULT
-            ).unwrap();
-
-            let mut compressed_ast = Vec::<u8>::with_capacity(10000);
-            lzzzz::lz4::compress_to_vec(
-                &serialized_ast, 
-                &mut compressed_ast, 
-                lz4::ACC_LEVEL_DEFAULT
-            ).unwrap();
+            let compressed_src = lz4_flex::block::compress(CONTRACT_SOURCE.as_bytes());
+            let compressed_ast = lz4_flex::block::compress(&serialized_ast);
+            let compressed_analysis = lz4_flex::block::compress(&serialized_analysis);
             
             insert_into(contract::table)
                 .values((
@@ -138,17 +146,29 @@ pub fn insert_clarity_contract_next(c: &mut Criterion) {
                 ))
                 .execute(&mut db)
                 .unwrap();
+
+            insert_into(contract_analysis::table)
+                .values((
+                    contract_analysis::contract_id.eq(analysis_id),
+                    contract_analysis::analysis.eq(&compressed_analysis),
+                    contract_analysis::analysis_size.eq(serialized_analysis.len() as i32)
+                ))
+                .execute(&mut db)
+                .unwrap();
+
+            analysis_id += 1;
         });
     });
 }
 
-pub fn select_clarity_contract_current(c: &mut Criterion) {
+pub fn select_clarity_contract_next(c: &mut Criterion) {
     use stacks_node_db_bench::db_current::clarity::{
-        DB_MIGRATIONS, CONTRACT_AST, CONTRACT_SOURCE,
+        DB_MIGRATIONS, CONTRACT_AST, CONTRACT_SOURCE, CONTRACT_ANALYSIS,
         schema::metadata_table
     };
 
     let ast = Contract::deserialize(CONTRACT_AST).unwrap();
+    let analysis = ContractAnalysis::deserialize(CONTRACT_ANALYSIS).unwrap();
     
     let tmp = tmp_file();
     let mut db = new_sqlite_db(&tmp);
@@ -156,6 +176,7 @@ pub fn select_clarity_contract_current(c: &mut Criterion) {
     apply_migrations(&mut db, DB_MIGRATIONS);
 
     let serialized_ast = ast.serialize();
+    let serialized_analysis = analysis.serialize();
 
     let mut keys = Vec::<(String, String)>::with_capacity(1000);
     for _ in 0..1000 {
@@ -209,13 +230,25 @@ pub fn select_clarity_contract_current(c: &mut Criterion) {
             ))
             .execute(&mut db)
             .unwrap();
+
+        // Simulate `analysis`
+        let mut analysis_key = key.clone();
+        analysis_key.push_str("::analysis");
+        insert_into(metadata_table::table)
+            .values((
+                metadata_table::key.eq(analysis_key),
+                metadata_table::blockhash.eq(&blockhash),
+                metadata_table::value.eq(&serialized_analysis),
+            ))
+            .execute(&mut db)
+            .unwrap();
     }
 
     let idx = || -> usize {
         thread_rng().gen_range(0..keys.len())
     };
 
-    c.bench_function("contracts/current/select", |b| {
+    c.bench_function("contracts/next/select", |b| {
         b.iter(|| {
             let key = &keys[idx()];
 
@@ -285,51 +318,63 @@ pub fn select_clarity_contract_current(c: &mut Criterion) {
                 )
                 .first::<(String, String, String)>(&mut db)
                 .unwrap();
+
+            let mut analysis_key = key.clone();
+            analysis_key.0.push_str("::analysis");
+            let analysis_result = metadata_table::table
+                .select((
+                    metadata_table::key,
+                    metadata_table::blockhash,
+                    metadata_table::value
+                ))
+                .filter(
+                    metadata_table::key.eq(&analysis_key.0)
+                        .and(metadata_table::blockhash.eq(&analysis_key.1))
+                )
+                .first::<(String, String, String)>(&mut db)
+                .unwrap();
+            let _ = ContractAnalysis::deserialize(&analysis_result.2).unwrap();
         });
     });
 }
 
-pub fn select_clarity_contract_next(c: &mut Criterion) {
+pub fn select_clarity_contract_optimized(c: &mut Criterion) {
     use stacks_node_db_bench::db_next::clarity::{
-        DB_MIGRATIONS, CONTRACT_AST, CONTRACT_SOURCE,
-        schema::contract
+        DB_MIGRATIONS, CONTRACT_AST, CONTRACT_SOURCE, CONTRACT_ANALYSIS,
+        schema::contract, schema::contract_analysis
     };
 
-    let ast = Contract::deserialize(CONTRACT_AST).unwrap();
-    let ast = rmp_serde::to_vec(&ast).unwrap();
+    let ast = Contract::deserialize(CONTRACT_AST)
+        .unwrap();
+    let ast = speedy::Writable::write_to_vec(&ast)
+        .expect("failed to serialize contract AST");
+
+    let analysis = ContractAnalysis::deserialize(CONTRACT_ANALYSIS)
+        .unwrap();
+    let analysis = speedy::Writable::write_to_vec(&analysis)
+        .expect("failed to serialize contract analysis");
     
     let tmp = tmp_file();
     let mut db = new_sqlite_db(&tmp);
 
     apply_migrations(&mut db, DB_MIGRATIONS);
 
-    let mut keys = Vec::<(String, String, Vec<u8>)>::with_capacity(1000);
+    let mut keys = Vec::<(i32, String, String, Vec<u8>)>::with_capacity(1000);
 
-    let mut compressed_src = Vec::<u8>::with_capacity(10000);
-    lzzzz::lz4::compress_to_vec(
-        CONTRACT_SOURCE.as_bytes(), 
-        &mut compressed_src, 
-        lz4::ACC_LEVEL_DEFAULT
-    ).unwrap();
-
-    let mut compressed_ast = Vec::<u8>::with_capacity(10000);
-    lzzzz::lz4::compress_to_vec(
-        &ast, 
-        &mut compressed_ast, 
-        lz4::ACC_LEVEL_DEFAULT
-    ).unwrap();
+    let compressed_src = lz4_flex::block::compress(CONTRACT_SOURCE.as_bytes());
+    let compressed_ast = lz4_flex::block::compress(&ast);
+    let compressed_analysis = lz4_flex::block::compress(&analysis);
     
-    //eprintln!("Uncompressed source size: {}, Compressed source size: {}", CONTRACT_SOURCE.as_bytes().len(), compressed_src.len());
-
-    for _ in 0..1000 {
+    for i in 0..1000 {
         let contract_issuer = random_string(32);
         let contract_name = random_string(20);
         let block_hash = random_bytes(32);
 
-        keys.push((contract_issuer.clone(), contract_name.clone(), block_hash.clone()));
+        keys.push((i, contract_issuer.clone(), contract_name.clone(), block_hash.clone()));
 
         insert_into(contract::table)
             .values((
+                contract::id.eq(i),
                 contract::contract_issuer.eq(&contract_issuer),
                 contract::contract_name.eq(&contract_name),
                 contract::block_hash.eq(&block_hash),
@@ -341,35 +386,50 @@ pub fn select_clarity_contract_next(c: &mut Criterion) {
             ))
             .execute(&mut db)
             .unwrap();
+
+        insert_into(contract_analysis::table)
+            .values((
+                contract_analysis::contract_id.eq(i),
+                contract_analysis::analysis.eq(&compressed_analysis),
+                contract_analysis::analysis_size.eq(analysis.len() as i32)
+            ))
+            .execute(&mut db)
+            .unwrap();
     }
 
     let idx = || -> usize {
         thread_rng().gen_range(0..keys.len())
     };
 
-    c.bench_function("contracts/next/select", |b| {
+    c.bench_function("contracts/optimized/select", |b| {
         b.iter(|| {
             let key = &keys[idx()];
 
-            let contract = contract::table
+            let contract_result = contract::table
                 .filter(
-                    contract::contract_issuer.eq(&key.0)
-                        .and(contract::contract_name.eq(&key.1))
-                        .and(contract::block_hash.eq(&key.2))
+                    contract::contract_issuer.eq(&key.1)
+                        .and(contract::contract_name.eq(&key.2))
+                        .and(contract::block_hash.eq(&key.3))
                 )
                 .first::<stacks_node_db_bench::db_next::clarity::Contract>(&mut db)
                 .unwrap();
 
-            //eprintln!("Expected source size: {}, compressed size: {}, contract size: {}", CONTRACT_SOURCE.as_bytes().len(), compressed_src.len(), contract.contract_size);
-            let mut contract_src = vec![0; contract.contract_size as usize];
-            lz4::decompress(&contract.source_code, &mut contract_src).unwrap();
+            let analysis_result = contract_analysis::table
+                .filter(contract_analysis::contract_id.eq(contract_result.id))
+                .first::<stacks_node_db_bench::db_next::clarity::ContractAnalysis>(&mut db)
+                .unwrap();
+
+            let contract_src = lz4_flex::decompress(&contract_result.source_code, CONTRACT_SOURCE.len()).unwrap();
             assert_eq!(String::from_utf8(contract_src).unwrap(), CONTRACT_SOURCE);
 
-            let mut decomp_ast = vec![0; contract.ast_size as usize];
-            lz4::decompress(&contract.ast, &mut decomp_ast).unwrap();
+            let decomp_ast = lz4_flex::decompress(&contract_result.ast, ast.len()).unwrap();
             assert_eq!(ast, decomp_ast);
+            let _ = Contract::read_from_buffer(&decomp_ast).unwrap();
 
-            rmp_serde::from_slice::<Contract>(&decomp_ast).unwrap();
+            let decomp_analysis = lz4_flex::decompress(&analysis_result.analysis, analysis_result.analysis_size as usize).unwrap();
+            assert_eq!(analysis, decomp_analysis);
+            let _ = ContractAnalysis::read_from_buffer(&decomp_analysis).unwrap();
+
         });
     });
 }

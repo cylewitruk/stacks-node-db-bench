@@ -189,12 +189,6 @@ CREATE INDEX txid_tx_index ON transactions(txid);
 CREATE INDEX index_block_hash_tx_index ON transactions(index_block_hash);
 CREATE INDEX index_block_header_by_affirmation_weight ON block_headers(affirmation_weight);
 CREATE INDEX index_block_header_by_height_and_affirmation_weight ON block_headers(block_height,affirmation_weight);
-CREATE TABLE __fork_storage(
-            value_hash TEXT NOT NULL,
-            value TEXT NOT NULL,
-
-            PRIMARY KEY(value_hash)
-        );
 CREATE INDEX index_parent_block_id ON block_headers(parent_block_id);
 /* bytecode(addr,opcode,p1,p2,p3,p4,p5,comment,subprog) */;
 /* completion(candidate) */;

@@ -31,7 +31,8 @@ criterion_group! {
     config = Criterion::default().sample_size(10000).measurement_time(Duration::from_secs(5));
     targets =
         serialization::serialize_ast_json,
-        serialization::serialize_ast_msgpack
+        serialization::serialize_ast_msgpack,
+        serialization::serialize_ast_speedy
 }
 
 criterion_group! {
@@ -39,23 +40,24 @@ criterion_group! {
     config = Criterion::default().sample_size(10000).measurement_time(Duration::from_secs(5));
     targets =
         serialization::serialize_analysis_json,
-        serialization::serialize_analysis_msgpack
+        serialization::serialize_analysis_msgpack,
+        serialization::serialize_analysis_speedy
 }
 
 criterion_group! {
     name = insert_clarity_contract;
     config = Criterion::default().sample_size(10000).measurement_time(Duration::from_secs(15));
     targets =
-        clarity::insert_clarity_contract_current,
-        clarity::insert_clarity_contract_next
+        clarity::insert_clarity_contract_next,
+        clarity::insert_clarity_contract_optimized
 }
 
 criterion_group! {
     name = select_clarity_contract;
     config = Criterion::default().sample_size(10000).measurement_time(Duration::from_secs(15));
     targets =
-        clarity::select_clarity_contract_current,
-        clarity::select_clarity_contract_next
+        clarity::select_clarity_contract_next,
+        clarity::select_clarity_contract_optimized
 }
 
 criterion_main!(

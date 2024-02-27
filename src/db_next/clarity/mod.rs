@@ -1,7 +1,7 @@
 use diesel::prelude::*;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations};
 
-use self::schema::contract;
+use self::schema::{contract, contract_analysis};
 
 pub mod schema;
 
@@ -17,6 +17,7 @@ pub const CONTRACT_SOURCE: &str = include_str!("../../../data/clarity/contract_s
 #[diesel(primary_key(contract_issuer, contract_name, block_hash))]
 #[diesel(table_name = contract)]
 pub struct Contract {
+    pub id: i32,
     pub contract_issuer: String,
     pub contract_name: String,
     pub block_hash: Vec<u8>,
@@ -25,4 +26,13 @@ pub struct Contract {
     pub contract_size: i32,
     pub ast: Vec<u8>,
     pub ast_size: i32
+}
+
+#[derive(Queryable, Selectable, Identifiable, PartialEq, Eq, Debug, Clone, QueryableByName)]
+#[diesel(primary_key(contract_id))]
+#[diesel(table_name = contract_analysis)]
+pub struct ContractAnalysis {
+    pub contract_id: i32,
+    pub analysis: Vec<u8>,
+    pub analysis_size: i32
 }

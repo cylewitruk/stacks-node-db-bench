@@ -16,6 +16,7 @@
 --INSERT INTO metadata_store_type (id, name) VALUES (21, 'PoX Unlock Height');
 
 CREATE TABLE contract (
+    id INTEGER PRIMARY KEY,
     contract_issuer TEXT NOT NULL,
     contract_name TEXT NOT NULL,
     block_hash BINARY NOT NULL,
@@ -25,8 +26,14 @@ CREATE TABLE contract (
     ast BINARY NOT NULL,
     ast_size INTEGER NOT NULL,
 
-    PRIMARY KEY (contract_issuer, contract_name, block_hash)
-) WITHOUT ROWID;
+    UNIQUE (contract_issuer, contract_name, block_hash)
+);
+
+CREATE TABLE contract_analysis (
+    contract_id INTEGER PRIMARY KEY NOT NULL,
+    analysis BINARY NOT NULL,
+    analysis_size INTEGER NOT NULL
+);
 
 CREATE TABLE data_map (
     contract_issuer TEXT NOT NULL,
