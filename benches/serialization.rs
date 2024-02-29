@@ -2,6 +2,7 @@ use std::time::Duration;
 
 use blockstack_lib::clarity::vm::{analysis::ContractAnalysis, contracts::Contract, database::ClarityDeserializable, database::ClaritySerializable};
 use criterion::{criterion_group, Criterion};
+use rkyv::ser::Serializer;
 use speedy::Readable;
 
 criterion_group! {
@@ -10,7 +11,8 @@ criterion_group! {
     targets =
         serialize_ast_json,
         serialize_ast_msgpack,
-        serialize_ast_speedy
+        serialize_ast_speedy,
+        serialize_ast_rkyv
 }
 
 criterion_group! {
@@ -19,7 +21,8 @@ criterion_group! {
     targets =
         serialize_analysis_json,
         serialize_analysis_msgpack,
-        serialize_analysis_speedy
+        serialize_analysis_speedy,
+        serialize_analysis_rkyv
 }
 
 fn main() {
@@ -69,6 +72,18 @@ pub fn serialize_ast_speedy(c: &mut Criterion) {
     });
 }
 
+pub fn serialize_ast_rkyv(c: &mut Criterion) {
+    use stacks_node_db_bench::db_current::clarity::CONTRACT_AST;
+    let ast = <Contract as ClarityDeserializable<Contract>>::deserialize(CONTRACT_AST).unwrap();
+
+    c.bench_function("serialization/rkyv/ast", |b| {
+        b.iter(|| {
+            let serialized = rkyv::to_bytes::<_, 1024>(&ast).unwrap();
+            let _ = rkyv::check_archived_root::<Contract>(&serialized).unwrap();
+        });
+    });
+}
+
 pub fn serialize_analysis_json(c: &mut Criterion) {
     use stacks_node_db_bench::db_current::clarity::CONTRACT_ANALYSIS;
     let analysis = ContractAnalysis::deserialize(CONTRACT_ANALYSIS).unwrap();
@@ -101,6 +116,18 @@ pub fn serialize_analysis_speedy(c: &mut Criterion) {
         b.iter(|| {
             let serialized = speedy::Writable::write_to_vec(&analysis).unwrap();
             let _ = ContractAnalysis::read_from_buffer(&serialized).unwrap();
+        });
+    });
+}
+
+pub fn serialize_analysis_rkyv(c: &mut Criterion) {
+    use stacks_node_db_bench::db_current::clarity::CONTRACT_ANALYSIS;
+    let analysis = <ContractAnalysis as ClarityDeserializable<ContractAnalysis>>::deserialize(CONTRACT_ANALYSIS).unwrap();
+
+    c.bench_function("serialization/rkyv/analysis", |b| {
+        b.iter(|| {
+            let serialized = rkyv::to_bytes::<_, 1024>(&analysis).unwrap();
+            let _ = rkyv::check_archived_root::<ContractAnalysis>(&serialized).unwrap();
         });
     });
 }

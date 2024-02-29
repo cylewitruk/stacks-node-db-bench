@@ -22,6 +22,7 @@ stacks-common = { path = "./stacks-core/stacks-common" }
 ciborium = "0.2.2"
 lz4_flex = "0.11.2"
 speedy = "0.8.7"
+rkyv = { version = "0.7.44", features = ["strict", "validation"] }
 
 [dev-dependencies]
 criterion = "0.5.1"

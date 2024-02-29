@@ -59,7 +59,7 @@ pub fn insert_clarity_contract_next(c: &mut Criterion) {
             insert_into(metadata_table::table)
                 .values((
                     metadata_table::key.eq(random_string(64)),
-                    metadata_table::blockhash.eq(random_string(64)),
+                    metadata_table::blockhash.eq(hex::encode(random_bytes(32))),
                     metadata_table::value.eq(serialized_ast),
                 ))
                 .execute(&mut db)
@@ -68,7 +68,7 @@ pub fn insert_clarity_contract_next(c: &mut Criterion) {
             insert_into(metadata_table::table)
                 .values((
                     metadata_table::key.eq(random_string(64)),
-                    metadata_table::blockhash.eq(random_string(64)),
+                    metadata_table::blockhash.eq(hex::encode(random_bytes(32))),
                     metadata_table::value.eq(CONTRACT_SOURCE),
                 ))
                 .execute(&mut db)
@@ -78,7 +78,7 @@ pub fn insert_clarity_contract_next(c: &mut Criterion) {
             insert_into(metadata_table::table)
                 .values((
                     metadata_table::key.eq(random_string(64)),
-                    metadata_table::blockhash.eq(random_string(64)),
+                    metadata_table::blockhash.eq(hex::encode(random_bytes(32))),
                     metadata_table::value.eq(1.to_string()),
                 ))
                 .execute(&mut db)
@@ -88,7 +88,7 @@ pub fn insert_clarity_contract_next(c: &mut Criterion) {
             insert_into(metadata_table::table)
                 .values((
                     metadata_table::key.eq(random_string(64)),
-                    metadata_table::blockhash.eq(random_string(64)),
+                    metadata_table::blockhash.eq(hex::encode(random_bytes(32))),
                     metadata_table::value.eq(1.to_string()),
                 ))
                 .execute(&mut db)
@@ -98,7 +98,7 @@ pub fn insert_clarity_contract_next(c: &mut Criterion) {
             insert_into(metadata_table::table)
                 .values((
                     metadata_table::key.eq(random_string(64)),
-                    metadata_table::blockhash.eq(random_string(64)),
+                    metadata_table::blockhash.eq(hex::encode(random_bytes(32))),
                     metadata_table::value.eq(serialized_analysis),
                 ))
                 .execute(&mut db)
@@ -181,7 +181,7 @@ pub fn select_clarity_contract_next(c: &mut Criterion) {
     let mut keys = Vec::<(String, String)>::with_capacity(1000);
     for _ in 0..1000 {
         let key = random_string(64);
-        let blockhash = random_string(64);
+        let blockhash = hex::encode(random_bytes(32));
 
         keys.push((key.clone(), blockhash.clone()));
 
@@ -268,6 +268,7 @@ pub fn select_clarity_contract_next(c: &mut Criterion) {
                 .first::<(String, String, String)>(&mut db)
                 .unwrap();
             assert_eq!(ast.2, serialized_ast);
+            hex::decode(&ast.1).unwrap();
             Contract::deserialize(&ast.2).unwrap();
 
             // Contract source
@@ -286,6 +287,7 @@ pub fn select_clarity_contract_next(c: &mut Criterion) {
                 .first::<(String, String, String)>(&mut db)
                 .unwrap();
             assert_eq!(src.2, CONTRACT_SOURCE);
+            hex::decode(&ast.1).unwrap();
 
             // Simulate `contract-data-size`
             let mut data_size_key = key.clone();
@@ -302,6 +304,7 @@ pub fn select_clarity_contract_next(c: &mut Criterion) {
                 )
                 .first::<(String, String, String)>(&mut db)
                 .unwrap();
+            hex::decode(&ast.1).unwrap();
 
             // Simulate `contract-size`
             let mut contract_size_key = key.clone();
@@ -318,6 +321,7 @@ pub fn select_clarity_contract_next(c: &mut Criterion) {
                 )
                 .first::<(String, String, String)>(&mut db)
                 .unwrap();
+            hex::decode(&ast.1).unwrap();
 
             let mut analysis_key = key.clone();
             analysis_key.0.push_str("::analysis");
@@ -334,6 +338,7 @@ pub fn select_clarity_contract_next(c: &mut Criterion) {
                 .first::<(String, String, String)>(&mut db)
                 .unwrap();
             let _ = ContractAnalysis::deserialize(&analysis_result.2).unwrap();
+            hex::decode(&ast.1).unwrap();
         });
     });
 }
