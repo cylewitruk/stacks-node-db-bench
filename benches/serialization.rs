@@ -2,7 +2,6 @@ use std::time::Duration;
 
 use blockstack_lib::clarity::vm::{analysis::ContractAnalysis, contracts::Contract, database::ClarityDeserializable, database::ClaritySerializable};
 use criterion::{criterion_group, Criterion};
-use rkyv::ser::Serializer;
 use speedy::Readable;
 
 criterion_group! {

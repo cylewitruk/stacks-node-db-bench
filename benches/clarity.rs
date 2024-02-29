@@ -124,10 +124,13 @@ pub fn insert_clarity_contract_optimized(c: &mut Criterion) {
 
     c.bench_function("contracts/optimized/insert", |b| {
         b.iter(|| {
-            let serialized_ast = speedy::Writable::write_to_vec(&ast)
-                .expect("failed to serialize contract AST");
-            let serialized_analysis = speedy::Writable::write_to_vec(&analysis)
-                .expect("failed to serialize contract analysis");
+            //let serialized_ast = speedy::Writable::write_to_vec(&ast)
+            //    .expect("failed to serialize contract AST");
+            let serialized_ast = rkyv::to_bytes::<_, 8192>(&ast).unwrap();
+
+            //let serialized_analysis = speedy::Writable::write_to_vec(&analysis)
+            //    .expect("failed to serialize contract analysis");
+            let serialized_analysis = rkyv::to_bytes::<_, 8192>(&analysis).unwrap();
 
             let compressed_src = lz4_flex::block::compress(CONTRACT_SOURCE.as_bytes());
             let compressed_ast = lz4_flex::block::compress(&serialized_ast);
@@ -343,6 +346,7 @@ pub fn select_clarity_contract_next(c: &mut Criterion) {
     });
 }
 
+/// Benchmarking using the optimized schema, with both serialization + compression
 pub fn select_clarity_contract_optimized(c: &mut Criterion) {
     use stacks_node_db_bench::db_next::clarity::{
         DB_MIGRATIONS, CONTRACT_AST, CONTRACT_SOURCE, CONTRACT_ANALYSIS,
@@ -351,13 +355,15 @@ pub fn select_clarity_contract_optimized(c: &mut Criterion) {
 
     let ast = Contract::deserialize(CONTRACT_AST)
         .unwrap();
-    let ast = speedy::Writable::write_to_vec(&ast)
-        .expect("failed to serialize contract AST");
+    //let ast = speedy::Writable::write_to_vec(&ast)
+    //    .expect("failed to serialize contract AST");
+    let ast = rkyv::to_bytes::<_, 8192>(&ast).unwrap();
 
     let analysis = ContractAnalysis::deserialize(CONTRACT_ANALYSIS)
         .unwrap();
-    let analysis = speedy::Writable::write_to_vec(&analysis)
-        .expect("failed to serialize contract analysis");
+    // let analysis = speedy::Writable::write_to_vec(&analysis)
+    //     .expect("failed to serialize contract analysis");
+    let analysis = rkyv::to_bytes::<_, 8192>(&analysis).unwrap();
     
     let tmp = tmp_file();
     let mut db = new_sqlite_db(&tmp);
@@ -428,12 +434,14 @@ pub fn select_clarity_contract_optimized(c: &mut Criterion) {
             assert_eq!(String::from_utf8(contract_src).unwrap(), CONTRACT_SOURCE);
 
             let decomp_ast = lz4_flex::decompress(&contract_result.ast, ast.len()).unwrap();
-            assert_eq!(ast, decomp_ast);
-            let _ = Contract::read_from_buffer(&decomp_ast).unwrap();
+            //assert_eq!(compressed_ast, decomp_ast);
+            //let _ = Contract::read_from_buffer(&decomp_ast).unwrap();
+            let _ = rkyv::check_archived_root::<Contract>(&decomp_ast).unwrap();
 
             let decomp_analysis = lz4_flex::decompress(&analysis_result.analysis, analysis_result.analysis_size as usize).unwrap();
-            assert_eq!(analysis, decomp_analysis);
-            let _ = ContractAnalysis::read_from_buffer(&decomp_analysis).unwrap();
+            //assert_eq!(compressed_analysis, decomp_analysis);
+            //let _ = ContractAnalysis::read_from_buffer(&decomp_analysis).unwrap();
+            let _ = rkyv::check_archived_root::<ContractAnalysis>(&decomp_analysis).unwrap();
 
         });
     });
