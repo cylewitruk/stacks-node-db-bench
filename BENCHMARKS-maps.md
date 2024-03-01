@@ -11,9 +11,9 @@
 
 |                      | `btree`                   | `hashmap (std)`                  | `hashmap (hashbrown)`            | `indexmap`                        |
 |:---------------------|:--------------------------|:---------------------------------|:---------------------------------|:--------------------------------- |
-| **`insert`**         | `270.82 us` (✅ **1.00x**) | `257.39 us` (✅ **1.05x faster**) | `217.97 us` (✅ **1.24x faster**) | `222.85 us` (✅ **1.22x faster**)  |
-| **`to sorted vec`**  | `27.92 us` (✅ **1.00x**)  | `65.64 us` (❌ *2.35x slower*)    | `64.25 us` (❌ *2.30x slower*)    | `64.77 us` (❌ *2.32x slower*)     |
-| **`random lookups`** | `84.81 us` (✅ **1.00x**)  | `32.41 us` (🚀 **2.62x faster**)  | `16.73 us` (🚀 **5.07x faster**)  | `34.55 us` (🚀 **2.45x faster**)   |
+| **`insert`**         | `653.46 us` (✅ **1.00x**) | `611.74 us` (✅ **1.07x faster**) | `597.16 us` (✅ **1.09x faster**) | `581.33 us` (✅ **1.12x faster**)  |
+| **`to sorted vec`**  | `43.13 us` (✅ **1.00x**)  | `78.96 us` (❌ *1.83x slower*)    | `71.72 us` (❌ *1.66x slower*)    | `79.61 us` (❌ *1.85x slower*)     |
+| **`random lookups`** | `81.21 us` (✅ **1.00x**)  | `29.87 us` (🚀 **2.72x faster**)  | `16.08 us` (🚀 **5.05x faster**)  | `30.70 us` (🚀 **2.65x faster**)   |
 
 ---
 Made with [criterion-table](https://github.com/nu11ptr/criterion-table)
