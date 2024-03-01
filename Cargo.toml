@@ -2,6 +2,7 @@
 name = "stacks-node-db-bench"
 version = "0.1.0"
 edition = "2021"
+build = "src/build.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -23,10 +24,17 @@ ciborium = "0.2.2"
 lz4_flex = "0.11.2"
 speedy = "0.8.7"
 rkyv = { version = "0.7.44", features = ["strict", "validation"] }
+fake = { version = "2.9.2", features = ["dummy", "derive"] }
+capnp = "0.19.2"
+itertools = "0.12.1"
+hashbrown = "0.14.3"
 
 [dev-dependencies]
 criterion = "0.5.1"
 coredump = "0.1.2"
+
+[build-dependencies]
+capnpc = "0.19.0"
 
 [[bench]]
 name = "general"
@@ -38,6 +46,10 @@ harness = false
 
 [[bench]]
 name = "serialization"
+harness = false
+
+[[bench]]
+name = "maps"
 harness = false
 
 [[bench]]

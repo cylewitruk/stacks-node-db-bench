@@ -12,7 +12,8 @@
         "./Cargo.toml",
         "./stacks-core/stackslib/Cargo.toml",
         "./stacks-core/stacks-common/Cargo.toml",
-        "./stacks-core/stacks-common/Cargo.toml"
+        "./stacks-core/stacks-common/Cargo.toml",
+        "./Cargo.toml"
     ],
     "folder-color.pathColors": [
         {

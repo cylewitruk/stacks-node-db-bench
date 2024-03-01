@@ -1,0 +1,187 @@
+syntax = "proto3";
+
+// pub struct QualifiedContractIdentifier {
+//     pub issuer: StandardPrincipalData,
+//     pub name: ContractName,
+// }
+message QualifiedContractIdentifier {
+    StandardPrincipalData issuer = 1;
+    string name = 2;
+}
+
+// pub enum PrincipalData {
+//     Standard(StandardPrincipalData),
+//     Contract(QualifiedContractIdentifier),
+// }
+message PrincipalData {
+    StandardPrincipalData standard = 1;
+    QualifiedContractIdentifier contract = 2;
+}
+
+// pub enum ContractIdentifier {
+//     Relative(ContractName),
+//     Qualified(QualifiedContractIdentifier),
+// }
+message ContractIdentifier {
+    oneof contract_identifier {
+        string relative = 1;
+        QualifiedContractIdentifier qualified = 2;
+    }
+}
+
+// pub struct OptionalData {
+//     pub data: Option<Box<Value>>,
+// }
+message OptionalData {
+    optional Value data = 1;
+}
+
+// pub struct ResponseData {
+//     pub committed: bool,
+//     pub data: Box<Value>,
+// }
+message ResponseData {
+    bool committed = 1;
+    Value data = 2;
+}
+
+// pub struct CallableData {
+//     pub contract_identifier: QualifiedContractIdentifier,
+//     pub trait_identifier: Option<TraitIdentifier>,
+// }
+message CallableData {
+    QualifiedContractIdentifier contract_identifier = 1;
+    TraitIdentifier trait_identifier = 2;
+}
+
+// pub struct TraitIdentifier {
+//     pub name: ClarityName,
+//     pub contract_identifier: QualifiedContractIdentifier,
+// }
+message TraitIdentifier {
+    string name = 1;
+    QualifiedContractIdentifier contract_identifier = 2;
+}
+
+// pub enum Value {
+//     Int(i128),
+//     UInt(u128),
+//     Bool(bool),
+//     Sequence(SequenceData),
+//     Principal(PrincipalData),
+//     Tuple(TupleData),
+//     Optional(OptionalData),
+//     Response(ResponseData),
+//     CallableContract(CallableData),
+// }
+message Value {
+    oneof value {
+        int int = 1;
+        uint uint = 2;
+        bool bool = 3;
+        SequenceData sequence = 4;
+        PrincipalData principal = 5;
+        TupleData tuple = 6;
+        OptionalData optional = 7;
+        ResponseData response = 8;
+        CallableData callable = 9;
+    }
+}
+
+// pub enum SequenceData {
+//     Buffer(BuffData),
+//     List(ListData),
+//     String(CharType),
+// }
+message SequenceData {
+    oneof sequence_data {
+        BuffData buffer = 1;
+        ListData list = 2;
+        string string = 3;
+    }
+}
+
+// pub enum CharType {
+//     UTF8(UTF8Data),
+//     ASCII(ASCIIData),
+// }
+message CharType {
+    oneof char_type {
+        UTF8Data utf8 = 1;
+        ASCIIData ascii = 2;
+    }
+}
+
+
+/*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+pub struct ContractMetadata {
+    pub contract: Contract,
+}
+
+pub struct SimmedBlock {
+    pub block_height: u64,
+    pub block_time: u64,
+    pub block_header_hash: [u8; 32],
+    pub burn_chain_header_hash: [u8; 32],
+    pub vrf_seed: [u8; 32],
+}
+
+
+
+pub struct ContractContext {
+    pub contract_identifier: QualifiedContractIdentifier,
+    #[omit_bounds]
+    #[archive_attr(omit_bounds)]
+    pub variables: HashMap<ClarityName, Value>,
+    #[omit_bounds]
+    #[archive_attr(omit_bounds)]
+    pub functions: HashMap<ClarityName, DefinedFunction>,
+    #[omit_bounds]
+    #[archive_attr(omit_bounds)]
+    pub defined_traits: HashMap<ClarityName, BTreeMap<ClarityName, FunctionSignature>>,
+    #[omit_bounds]
+    #[archive_attr(omit_bounds)]
+    pub implemented_traits: HashSet<TraitIdentifier>,
+    // tracks the names of NFTs, FTs, Maps, and Data Vars.
+    //  used for ensuring that they never are defined twice.
+    #[omit_bounds]
+    #[archive_attr(omit_bounds)]
+    pub persisted_names: HashSet<ClarityName>,
+    // track metadata for contract defined storage
+    #[omit_bounds]
+    #[archive_attr(omit_bounds)]
+    pub meta_data_map: HashMap<ClarityName, DataMapMetadata>,
+    #[omit_bounds]
+    #[archive_attr(omit_bounds)]
+    pub meta_data_var: HashMap<ClarityName, DataVariableMetadata>,
+    #[omit_bounds]
+    #[archive_attr(omit_bounds)]
+    pub meta_nft: HashMap<ClarityName, NonFungibleTokenMetadata>,
+    #[omit_bounds]
+    #[archive_attr(omit_bounds)]
+    pub meta_ft: HashMap<ClarityName, FungibleTokenMetadata>,
+    pub data_size: u64,
+    /// track the clarity version of the contract
+    clarity_version: ClarityVersion,
+}
+
+
+*/
