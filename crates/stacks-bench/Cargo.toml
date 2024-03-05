@@ -30,6 +30,7 @@ hashbrown = "0.14.3"
 indexmap = "2.2.5"
 clarity-models = { path = "../clarity-models" }
 ahash = "0.8.11"
+fxhash = "0.2.1"
 
 [dev-dependencies]
 criterion = "0.5.1"
