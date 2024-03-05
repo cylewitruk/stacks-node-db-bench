@@ -88,3 +88,11 @@ struct TraitDefinition {
         imported @1 :TraitIdentifier;
     }
 }
+
+struct NonFungibleTokenMetadata {
+    keyType @0 :TypeSignature;
+}
+
+struct FungibleTokenMetadata {
+    totalSupply @0 :Std.Optional(Std.UInt128);
+}

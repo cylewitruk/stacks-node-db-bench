@@ -15,6 +15,13 @@ struct Map(Key, Value) {
   }
 }
 
+struct Set(T) {
+    elements @0 :List(Value);
+    struct Value {
+        value @0 :T;
+    }
+}
+
 struct Tuple(T1, T2) {
     t1 @0 :T1;
     t2 @1 :T2;

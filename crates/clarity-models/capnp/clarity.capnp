@@ -4,8 +4,15 @@ using UInt128 = import "std.capnp".UInt128;
 using Int128 = import "std.capnp".Int128;
 using Optional = import "std.capnp".Optional;
 using Map = import "std.capnp".Map;
+using Set = import "std.capnp".Set;
 
 using Types = import "types.capnp";
+using Funcs = import "functions.capnp";
+
+enum ClarityVersion {
+    clarityV1 @0;
+    clarityV2 @1;
+}
 
 struct OptionalData {
     data @0 :Optional(Value);
@@ -58,4 +65,19 @@ struct CharType {
 struct TupleData {
     typeSignature @0 :Types.TupleTypeSignature;
     dataMap @1 :Map(Text, Value);
+}
+
+struct ContractContext {
+    contractIdentifier @0 :Types.QualifiedContractIdentifier;
+    variables @1 :Map(Text, Value);
+    functions @2 :Map(Text, Funcs.DefinedFunction);
+    definedTraits @3 :Map(Text, Map(Text, Funcs.FunctionSignature));
+    implementedTraits @4 :Set(Types.TraitIdentifier);
+    persistedNames @5 :Set(Text);
+    metaDataMap @6 :Map(Text, Types.DataMapMetadata);
+    metaDataVar @7 :Map(Text, Types.DataVariableMetadata);
+    metaNft @8 :Map(Text, Types.NonFungibleTokenMetadata);
+    metaFt @9 :Map(Text, Types.FungibleTokenMetadata);
+    dataSize @10 :UInt64;
+    clarityVersion @11 :ClarityVersion;
 }

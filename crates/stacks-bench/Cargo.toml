@@ -1,0 +1,56 @@
+[package]
+name = "stacks-node-db-bench"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+color-eyre = "0.6.2"
+diesel = { version = "2.1.4", features = ["sqlite", "returning_clauses_for_sqlite_3_35"] }
+diesel_migrations = { version = "2.1.0", features = ["sqlite"] }
+hex = "0.4.3"
+rand = "0.8.5"
+ring = "0.17.7"
+rmp = "0.8.12"
+rmp-serde = "1.1.2"
+serde = "1.0.196"
+serde_json = "1.0.113"
+tempfile = "3.9.0"
+stackslib = { path = "../../stacks-core/stackslib" }
+stacks-common = { path = "../../stacks-core/stacks-common" }
+ciborium = "0.2.2"
+lz4_flex = "0.11.2"
+speedy = "0.8.7"
+rkyv = { version = "0.7.44", features = ["strict", "validation"] }
+fake = { version = "2.9.2", features = ["dummy", "derive"] }
+capnp = "0.19.2"
+itertools = "0.12.1"
+hashbrown = "0.14.3"
+indexmap = "2.2.5"
+clarity-models = { path = "../clarity-models" }
+ahash = "0.8.11"
+
+[dev-dependencies]
+criterion = "0.5.1"
+coredump = "0.1.2"
+
+[[bench]]
+name = "general"
+harness = false
+
+[[bench]]
+name = "clarity"
+harness = false
+
+[[bench]]
+name = "serialization"
+harness = false
+
+[[bench]]
+name = "maps"
+harness = false
+
+[[bench]]
+name = "all"
+harness = false

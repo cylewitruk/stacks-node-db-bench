@@ -7,9 +7,9 @@ use indexmap::IndexMap;
 use rand::{thread_rng, Rng};
 use stacks_node_db_bench::utils::{random_string, random_bytes};
 
-criterion_group!(maps_insert, btreemap_insert, hashmap_insert_std, hashmap_insert_hashbrown, indexmap_insert);
-criterion_group!(maps_to_vec_sorted, btreemap_to_vec_sorted, hashmap_to_vec_sorted_std, hashmap_to_vec_sorted_hashbrown, indexmap_to_vec_sorted);
-criterion_group!(maps_random_lookups, btreemap_random_lookups, hashmap_random_lookups_std, hashmap_random_lookups_hashbrown, indexmap_random_lookups);
+criterion_group!(maps_insert, btreemap_insert, hashmap_insert_std, hashmap_insert_hashbrown, indexmap_insert, hashmap_insert_ahash);
+criterion_group!(maps_to_vec_sorted, btreemap_to_vec_sorted, hashmap_to_vec_sorted_std, hashmap_to_vec_sorted_hashbrown, indexmap_to_vec_sorted, hashmap_to_vec_sorted_ahash);
+criterion_group!(maps_random_lookups, btreemap_random_lookups, hashmap_random_lookups_std, hashmap_random_lookups_hashbrown, indexmap_random_lookups, hashmap_random_lookups_ahash);
 
 fn main() {
     coredump::register_panic_handler().expect("Failed to register panic handler");
@@ -68,6 +68,18 @@ pub fn hashmap_insert_hashbrown(c: &mut Criterion) {
 pub fn indexmap_insert(c: &mut Criterion) {
     c.bench_function("maps/indexmap/insert", |b| {
         b.iter_batched(|| IndexMap::<String, Vec<u8>>::new(), 
+        |mut map| {
+            for _ in 0..1000 {
+                map.insert(random_string(50), random_bytes(100));
+            }
+        }, 
+        criterion::BatchSize::SmallInput);
+    });
+}
+
+pub fn hashmap_insert_ahash(c: &mut Criterion) {
+    c.bench_function("maps/hashmap (ahash)/insert", |b| {
+        b.iter_batched(|| std::collections::HashMap::<String, Vec<u8>, ahash::RandomState>::default(),
         |mut map| {
             for _ in 0..1000 {
                 map.insert(random_string(50), random_bytes(100));
@@ -149,6 +161,24 @@ pub fn indexmap_to_vec_sorted(c: &mut Criterion) {
     });
 }
 
+pub fn hashmap_to_vec_sorted_ahash(c: &mut Criterion) {
+    c.bench_function("maps/hashmap (ahash)/to sorted vec", |b| {
+        b.iter_batched(|| {
+            let mut map: std::collections::HashMap<String, Vec<u8>, ahash::RandomState> = std::collections::HashMap::default();
+            for _ in 0..1000 {
+                map.insert(random_string(50), random_bytes(100));
+            }
+            map
+        },
+        |map| {
+            let _ = map.iter()
+                .sorted_unstable_by_key(|(key, _)| *key)
+                .collect::<Vec<_>>();
+        },
+        criterion::BatchSize::SmallInput);
+    });
+}
+
 pub fn btreemap_random_lookups(c: &mut Criterion) {
     let mut map: BTreeMap<String, Vec<u8>> = BTreeMap::new();
 
@@ -218,6 +248,25 @@ pub fn indexmap_random_lookups(c: &mut Criterion) {
     }
 
     c.bench_function("maps/indexmap/random lookups", |b| {
+        b.iter(|| {
+            for _ in 0..1000 {
+                map.get(&keys[thread_rng().gen_range(0..1000)]);
+            }
+        });
+    });
+}
+
+pub fn hashmap_random_lookups_ahash(c: &mut Criterion) {
+    let mut map: std::collections::HashMap<String, Vec<u8>, ahash::RandomState> = std::collections::HashMap::default();
+    let mut keys = Vec::<String>::new();
+
+    for _ in 0..1000 {
+        let key = random_string(50);
+        map.insert(key.clone(), random_bytes(100));
+        keys.push(key);
+    }
+
+    c.bench_function("maps/hashmap (ahash)/random lookups", |b| {
         b.iter(|| {
             for _ in 0..1000 {
                 map.get(&keys[thread_rng().gen_range(0..1000)]);
